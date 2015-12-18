@@ -20,7 +20,6 @@
 #silent t = gettext.translation($lang.domain, $lang.localedir, languages=$lang.lang, fallback=True)
 #silent _ = t.gettext
 #silent _t = t.gettext
-<!DOCTYPE html>
 <html>
 <body>
     <div id="storage-add-window" class="window modal-content">
@@ -29,6 +28,7 @@
         </div>
         <div class="modal-body">
             <form id="form-pool-add">
+                    <span id="alert-modal-container"></span>
                     <div class="form-group">
                         <label for="poolId">$_("Storage Pool Name")</label>
                         <input id="poolId" required="required" type="text" class="form-control" name="name">
@@ -38,7 +38,7 @@
                     </div>
                     <div class="form-group">
                         <label for="poolId">$_("Storage Pool Type")</label>
-                        <select id="poolTypeInputId" class="selectpicker col-md-12 col-lg-12"></select>    
+                        <select id="poolTypeInputId" class="selectpicker col-md-12 col-lg-12"></select>
                     </div>
                     <div class="path-section row">
                         <div class="form-group">
@@ -165,7 +165,7 @@
                 <span class="device-path">{path}</span>
             </div>
         </label>
-    </div>        
+    </div>
     </script>
 </body>
 </html>

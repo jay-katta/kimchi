@@ -4,6 +4,7 @@ Section: base
 Priority: optional
 Architecture: all
 Depends: wok,
+         ginger-base,
          python-imaging,
          python-configobj,
          websockify,
@@ -24,8 +25,10 @@ Depends: wok,
          python-guestfs,
          libguestfs-tools,
          spice-html5,
-         python-magic
+         python-magic,
+         python-paramiko
 Build-Depends: xsltproc,
+               gettext,
                python-lxml,
                python-dev,
                python-pip

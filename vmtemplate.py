@@ -19,6 +19,7 @@
 
 import os
 import platform
+import psutil
 import stat
 import time
 import urlparse
@@ -39,6 +40,12 @@ from wok.plugins.kimchi.xmlutils.graphics import get_graphics_xml
 from wok.plugins.kimchi.xmlutils.interface import get_iface_xml
 from wok.plugins.kimchi.xmlutils.qemucmdline import get_qemucmdline_xml
 from wok.plugins.kimchi.xmlutils.serial import get_serial_xml
+
+
+# In PowerPC, memories must be aligned to 256 MiB
+PPC_MEM_ALIGN = 256
+# Max memory 1TB, in KiB
+MAX_MEM_LIM = 1073741824
 
 
 class VMTemplate(object):
@@ -213,7 +220,7 @@ class VMTemplate(object):
                 img = "%s-%s.img" % (vm_uuid, params['index'])
                 storage_path = self._get_storage_path(disk['pool']['name'])
                 params['path'] = os.path.join(storage_path, img)
-
+                params['pool_type'] = disk['pool']['type']
             disks_xml += get_disk_xml(params)[1]
 
         return unicode(disks_xml, 'utf-8')
@@ -324,6 +331,27 @@ class VMTemplate(object):
                            self.info.get('memory') << 10,
                            cpu_topo)
 
+    def _get_max_memory(self, guest_memory):
+        # Setting maxMemory of the VM, which will be lesser value between:
+        # 1TB,  (Template Memory * 4),  Host Physical Memory.
+        max_memory = MAX_MEM_LIM
+        if hasattr(psutil, 'virtual_memory'):
+            host_memory = psutil.virtual_memory().total >> 10
+        else:
+            host_memory = psutil.TOTAL_PHYMEM >> 10
+        if host_memory < max_memory:
+            max_memory = host_memory
+        if (((guest_memory * 4) << 10) < max_memory):
+            max_memory = (guest_memory * 4) << 10
+
+        # set up arch to ppc64 instead of ppc64le due to libvirt compatibility
+        if self.info["arch"] == "ppc64":
+            # in Power, memory must be aligned in 256MiB
+            if (max_memory >> 10) % PPC_MEM_ALIGN != 0:
+                alignment = max_memory % (PPC_MEM_ALIGN << 10)
+                max_memory -= alignment
+        return max_memory
+
     def to_vm_xml(self, vm_name, vm_uuid, **kwargs):
         params = dict(self.info)
         params['name'] = vm_name
@@ -352,6 +380,9 @@ class VMTemplate(object):
         else:
             params['cdroms'] = cdrom_xml
 
+        # max memory
+        params['max_memory'] = self._get_max_memory(params['memory'])
+
         # Setting maximum number of slots to avoid errors when hotplug memory
         # Number of slots are the numbers of chunks of 1GB that fit inside
         # the max_memory of the host minus memory assigned to the VM. It
@@ -359,13 +390,17 @@ class VMTemplate(object):
         params['slots'] = ((params['max_memory'] >> 10) -
                            params['memory']) >> 10
         if params['slots'] < 0:
-            raise OperationFailed("KCHVM0041E")
+            raise OperationFailed("KCHVM0041E",
+                                  {'maxmem': str(params['max_memory'] >> 10)})
         elif params['slots'] == 0:
             params['slots'] = 1
         elif params['slots'] > 32:
             distro, _, _ = platform.linux_distribution()
             if distro == "IBM_PowerKVM":
                 params['slots'] = 32
+
+        # set a hard limit using max_memory + 1GiB
+        params['hard_limit'] = params['max_memory'] + (1024 << 10)
 
         cpu_topo = self.info.get('cpu_info').get('topology')
         if (cpu_topo is not None):
@@ -390,6 +425,9 @@ class VMTemplate(object):
           %(qemu-stream-cmdline)s
           <name>%(name)s</name>
           <uuid>%(uuid)s</uuid>
+          <memtune>
+            <hard_limit unit='KiB'>%(hard_limit)s</hard_limit>
+          </memtune>
           <maxMemory slots='%(slots)s' unit='KiB'>%(max_memory)s</maxMemory>
           <memory unit='MiB'>%(memory)s</memory>
           %(vcpus)s

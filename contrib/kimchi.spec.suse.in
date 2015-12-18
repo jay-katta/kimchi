@@ -8,6 +8,7 @@ Group:		System Environment/Base
 License:	LGPL/ASL2
 Source0:	%{name}-%{version}.tar.gz
 Requires:	wok
+Requires:	ginger-base
 Requires:	kvm
 Requires:	gettext-tools
 Requires:	libvirt
@@ -29,6 +30,8 @@ Requires:	open-iscsi
 Requires:	python-libguestfs
 Requires:	guestfs-tools
 Requires:	python-magic
+Requires:	python-paramiko
+BuildRequires:	gettext-tools
 BuildRequires:	libxslt-tools
 BuildRequires:	python-lxml
 BuildRequires:	python-devel

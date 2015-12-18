@@ -15,50 +15,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-kimchi.doListTemplates = function() {
+
+ kimchi.doListTemplates = function() {
+    $('.wok-mask').removeClass('hidden');
     kimchi.listTemplates(function(result) {
         if (result && result.length) {
             $('#noTemplates').hide();
-            var listHtml = '<li class="wok-vm-header">' +
-                '<span class="column-name">Template Name (ID)</span><!--' +
-                '--><span class="column-type">OS</span><!--' +
-                '--><span class="column-version">Version</span><!--' +
-                '--><span class="column-processors">CPUs</span><!--' +
-                '--><span class="column-memory">Memory</span><!-- ' +
-                '--><span class="column-action" style="display:none">   ' +
-                '    <span class="sr-only">Actions</span><!-- ' +
-                '--></span> ' +
-                '</li>';
+            var listHtml = '';
             var templateHtml = $('#templateTmpl').html();
             $.each(result, function(index, value) {
-                var isLocal;
-                if (value.cdrom) {
-                    isLocal = /^\//.test(value['cdrom']);
-                } else {
-                    for (var i = 0; i < value.disks.length; i++) {
-                        if (value.disks[i].base) {
-                            isLocal = /^\//.test(value.disks[i].base);
-                            break;
-                        }
-                    }
-                }
-                if (isLocal) {
-                    value.location = "plugins/kimchi/images/theme-default/icon-local.png";
-                } else {
-                    value.location = "plugins/kimchi/images/theme-default/icon-remote.png";
-                }
                 listHtml += wok.substitute(templateHtml, value);
             });
+            $('.wok-vm-list').removeClass('hidden');
+            $('#templates-container').removeClass('hidden');
             $('#templateList').html(listHtml);
             kimchi.templateBindClick();
+            $('.wok-mask').fadeOut(300, function() {});
         } else {
             $('#templateList').html('');
             $('#noTemplates').show();
+            $('.wok-vm-list').addClass('hidden');
+            $('#templates-container').addClass('hidden');
+            $('.wok-mask').fadeOut(300, function() {});
         }
-        $('html').removeClass('processing');
+
+        var options = { valueNames: ['name-filter', 'os-type-filter', 'os-version-filter', 'cpus-filter', 'memory-filter'] };
+        var templatesList = new List('templates-container', options);
+
     }, function(err) {
         wok.message.error(err.responseJSON.reason);
-        $('html').removeClass('processing');
+        $('.wok-mask').fadeOut(300, function() {
+            $('.wok-mask').addClass('hidden');
+        });
     });
 };
 
@@ -72,7 +60,7 @@ kimchi.templateBindClick = function() {
     $('.template-clone a').on('click', function(event) {
         event.preventDefault();
         kimchi.selectedTemplate = $(this).data('template');
-        $('html').addClass('processing');
+        $('.wok-mask').removeClass('hidden');
         kimchi.cloneTemplate(kimchi.selectedTemplate, function() {
             kimchi.doListTemplates();
         }, function(err) {
@@ -96,7 +84,7 @@ kimchi.templateBindClick = function() {
             }, function(err) {
                 wok.message.error(err.responseJSON.reason);
             });
-        }, function() {});
+        }, function(){});
     });
 }
 kimchi.hideTitle = function() {

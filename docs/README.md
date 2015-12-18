@@ -48,7 +48,7 @@ Install Dependencies
 
 **For fedora and RHEL:**
 
-     $ sudo yum install wok libvirt-python libvirt \
+     $ sudo yum install wok libvirt-python libvirt gettext-devel \
                         libvirt-daemon-config-network python-imaging \
                         qemu-kvm python-ethtool sos python-ipaddr \
                         nfs-utils iscsi-initiator-utils pyparted \
@@ -81,19 +81,19 @@ channel at RHN Classic or Red Hat Satellite.
                            qemu-kvm python-parted python-ethtool sosreport \
                            xsltproc python-ipaddr python-lxml open-iscsi \
                            python-guestfs libguestfs-tools spice-html5 \
-                           python-magic python-paramiko \
+                           python-magic python-paramiko gettext \
 
     # These dependencies are only required if you want to run the tests:
     $ sudo apt-get install pep8 pyflakes python-requests python-mock
 
 **For openSUSE:**
 
-    $ sudo zypper install wok libvirt-python libvirt \
+    $ sudo zypper install wok libvirt-python libvirt gettext-tools \
                           libvirt-daemon-config-network python-imaging \
                           kvm python-ethtool python-ipaddr nfs-client \
                           open-iscsi python-parted python-libguestfs \
                           python-configobj guestfs-tools python-websockify \
-                          novnc python-magic
+                          novnc python-magic python-paramiko
 
     # These dependencies are only required if you want to run the tests:
     $ sudo zypper install python-pyflakes python-pep8 python-requests python-mock
@@ -119,7 +119,7 @@ Build and Install
     Kimchi:
     $ cd plugins/kimchi
 
-    For openSUSE 13.1:
+    For openSUSE 13.2:
     $ ./autogen.sh --with-spice-html5
 
     Otherwise:
