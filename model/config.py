@@ -1,7 +1,7 @@
 #
 # Project Kimchi
 #
-# Copyright IBM, Corp. 2014-2015
+# Copyright IBM, Corp. 2014-2016
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -22,11 +22,11 @@ from multiprocessing.pool import ThreadPool
 
 from wok.basemodel import Singleton
 from wok.config import config as kconfig
-from wok.config import get_version
+
 from wok.exception import NotFoundError
 from wok.utils import run_command, wok_log
 
-from wok.plugins.kimchi.config import find_qemu_binary
+from wok.plugins.kimchi.config import find_qemu_binary, get_kimchi_version
 from wok.plugins.kimchi.distroloader import DistroLoader
 from wok.plugins.kimchi.model.featuretests import FeatureTests
 from wok.plugins.kimchi.model.featuretests import FEATURETEST_POOL_NAME
@@ -40,9 +40,7 @@ class ConfigModel(object):
         pass
 
     def lookup(self, name):
-        proxy_port = kconfig.get('display', 'display_proxy_port')
-        return {'display_proxy_port': proxy_port,
-                'version': get_version()}
+        return {'version': get_kimchi_version()}
 
 
 class CapabilitiesModel(object):
@@ -54,6 +52,7 @@ class CapabilitiesModel(object):
         self.libvirt_stream_protocols = []
         self.fc_host_support = False
         self.kernel_vfio = False
+        self.nm_running = False
         self.mem_hotplug_support = False
 
         # Subscribe function to set host capabilities to be run when cherrypy
@@ -90,6 +89,7 @@ class CapabilitiesModel(object):
         self.nfs_target_probe = FeatureTests.libvirt_support_nfs_probe(conn)
         self.fc_host_support = FeatureTests.libvirt_support_fc_host(conn)
         self.kernel_vfio = FeatureTests.kernel_support_vfio()
+        self.nm_running = FeatureTests.is_nm_running()
         self.mem_hotplug_support = FeatureTests.has_mem_hotplug_support(conn)
 
         self.libvirt_stream_protocols = []
