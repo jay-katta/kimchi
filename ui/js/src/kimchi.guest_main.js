@@ -1,7 +1,7 @@
 /*
  * Project Kimchi
  *
- * Copyright IBM, Corp. 2013-2015
+ * Copyright IBM, Corp. 2013-2016
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -233,6 +233,14 @@ kimchi.vmedit = function(event) {
     });
 };
 
+kimchi.vmmigrate = function(event) {
+    var button = event.target;
+    var vm = $(button).closest('li[name=guest]');
+    var vm_id = $(vm).attr("id");
+    kimchi.selectedGuest = vm_id;
+    wok.window.open('plugins/kimchi/guest-migration.html');
+};
+
 kimchi.openVmConsole = function(event) {
     var button = event.target;
     var vm = $(button).closest('li[name=guest]');
@@ -275,7 +283,7 @@ kimchi.initGuestFilter = function() {
 };
 
 kimchi.resetGuestFilter = function() {
-    if(guestFilterList){
+    if (guestFilterList) {
         $('#search_input').val();
         listFiltered = false;
     }
@@ -326,8 +334,35 @@ kimchi.listVmsAuto = function() {
             }, null, true);
             return guests;
         };
+
+        var getMigratingGuests = function() {
+            var guests = [];
+            kimchi.getTasksByFilter('status=running&target_uri=' + encodeURIComponent('^/plugins/kimchi/vms/.+/migrate'), function(tasks) {
+                for (var i = 0; i < tasks.length; i++) {
+                    var guestUri = tasks[i].target_uri;
+                    var guestName = guestUri.split('/')[4]
+                    guests.push($.extend({}, kimchi.sampleGuestObject, {
+                        name: guestName,
+                        isMigrating: true
+                    }));
+                    if (kimchi.trackingTasks.indexOf(tasks[i].id) == -1)
+                        kimchi.trackTask(tasks[i].id, null, function(err) {
+                            wok.message.error(err.message);
+                        }, null);
+                }
+            }, null, true);
+            return guests;
+        };
+
         kimchi.listVMs(function(result, textStatus, jqXHR) {
                 if (result && textStatus == "success") {
+                    var migrated = getMigratingGuests();
+                    for (i = migrated.length - 1; i >= 0; i--) {
+                        for (j = result.length - 1; j >= 0; j--) {
+                            if (result[j].name == migrated[i].name) result.splice(j, 1);
+                        }
+                    }
+                    result = getMigratingGuests().concat(result);
                     result = getCloningGuests().concat(result);
                     result = getCreatingGuests().concat(result);
                     if (result.length) {
@@ -384,7 +419,6 @@ kimchi.listVmsAuto = function() {
 
 kimchi.createGuestLi = function(vmObject, prevScreenImage, openMenu) {
     var result = kimchi.guestElem.clone();
-
     //Setup the VM list entry
     var currentState = result.find('.guest-state');
     var vmRunningBool = (vmObject.state == "running");
@@ -404,7 +438,6 @@ kimchi.createGuestLi = function(vmObject, prevScreenImage, openMenu) {
 
     //Add the OS Type and Icon
     var osType = result.find('.distro-icon');
-    console.log(vmObject);
     if (vmObject.icon == 'plugins/kimchi/images/icon-fedora.png') {
         osType.addClass('icon-fedora');
         osType.attr('val', 'Fedora');
@@ -439,7 +472,7 @@ kimchi.createGuestLi = function(vmObject, prevScreenImage, openMenu) {
     //Setup the VM console thumbnail display
     var curImg = vmObject.icon;
     if (vmObject.screenshot) {
-        curImg = vmObject.screenshot.replace(/^\//,'');
+        curImg = vmObject.screenshot.replace(/^\//, '');
     }
     var load_src = curImg || 'plugins/kimchi/images/icon-vm.png';
     var tile_src = prevScreenImage || vmObject['load-src'];
@@ -457,7 +490,7 @@ kimchi.createGuestLi = function(vmObject, prevScreenImage, openMenu) {
     imgLoad.attr('src', load_src);
 
     //Link the stopped tile to the start action, the running tile to open the console, and the paused tile to resume
-    if (!(vmObject.isCloning || vmObject.isCreating)) {
+    if (!(vmObject.isCloning || vmObject.isCreating || vmObject.isMigrating)) {
         if (vmPoweredOffBool) {
             liveTile.off("click", function(event) {
                 event.preventDefault();
@@ -595,7 +628,7 @@ kimchi.createGuestLi = function(vmObject, prevScreenImage, openMenu) {
         result.addClass('inactive');
         result.find('.distro-icon').addClass('inactive');
         result.find('.vnc-link').css("display", "none");
-        result.find('.column-vnc').html('--');        
+        result.find('.column-vnc').html('--');
         //Hide PowerOff
         guestActions.find(".shutoff-hidden").hide();
         //Hide Pause
@@ -630,7 +663,7 @@ kimchi.createGuestLi = function(vmObject, prevScreenImage, openMenu) {
     }
 
     //Setup action event handlers
-    if (!(vmObject.isCloning || vmObject.isCreating)) {
+    if (!(vmObject.isCloning || vmObject.isCreating || vmObject.isMigrating)) {
 
         guestActions.find("[name=vm-start]").on("click", function(event) {
             event.preventDefault();
@@ -689,12 +722,19 @@ kimchi.createGuestLi = function(vmObject, prevScreenImage, openMenu) {
                 });
             }, null);
         });
+        guestActions.find("[name=vm-migrate]").on('click', function(event) {
+            event.preventDefault();
+            kimchi.vmmigrate(event);
+        });
     } else {
         guestActions.find('.btn').attr('disabled', true);
-        result.find('.guest-pending').removeClass('hide-content');
+        result.find('.guest-done').addClass('hidden');
+        result.find('.guest-pending').removeClass('hidden');
         pendingText = result.find('.guest-pending .text')
         if (vmObject.isCloning)
             pendingText.text(i18n['KCHAPI6009M']);
+        else if (vmObject.isMigrating)
+            pendingText.text(i18n['KCHAPI6012M']);
         else
             pendingText.text(i18n['KCHAPI6008M']);
     }
