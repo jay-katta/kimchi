@@ -1,7 +1,7 @@
 /*
  * Project Kimchi
  *
- * Copyright IBM, Corp. 2013-2016
+ * Copyright IBM Corp, 2013-2016
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,13 @@ kimchi.startNetworkCreation = function() {
     var data = {
         name : network.name,
         connection: network.type,
-        interface: network.interface,
+        interfaces: [ network.interface ],
         vlan_id: network.vlan_id
     };
 
     kimchi.createNetwork(data, function(result) {
         network.state = result.state === "active" ? "up" : "down";
-        network.interface = result.interface ? result.interface : i18n["KCHNET6001M"];
+        network.interface = result.interfaces ? result.interfaces[0] : i18n["KCHNET6001M"];
         network.addrSpace = result.subnet ? result.subnet : i18n["KCHNET6001M"];
         network.persistent = result.persistent;
         $('#networkGrid').dataGrid('addRow', kimchi.addNetworkItem(network));
@@ -82,7 +82,7 @@ kimchi.getNetworkDialogValues = function() {
         name : $("#networkName").val(),
         type : $("#networkType").val()
     };
-    if (network.type === kimchi.NETWORK_TYPE_MACVTAP) {
+    if (network.type === kimchi.NETWORK_TYPE_MACVTAP ||  network.type === kimchi.NETWORK_TYPE_VEPA) {
         network.interface = $("#networkDestinationID").val();
     }
     if (network.type === kimchi.NETWORK_TYPE_BRIDGED) {
@@ -106,7 +106,7 @@ kimchi.setupNetworkFormEvent = function() {
 
     $('#networkType').on('change', function() {
         var selectedType = $("#networkType").val();
-        if(selectedType === kimchi.NETWORK_TYPE_MACVTAP) {
+        if(selectedType === kimchi.NETWORK_TYPE_MACVTAP || selectedType === kimchi.NETWORK_TYPE_VEPA) {
             kimchi.loadInterfaces(new Array("nic", "bonding"));
         } else {
             kimchi.loadInterfaces();
