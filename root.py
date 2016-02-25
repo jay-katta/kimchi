@@ -1,7 +1,7 @@
 #
 # Project Kimchi
 #
-# Copyright IBM, Corp. 2013-2016
+# Copyright IBM Corp, 2015-2016
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,7 @@ from wok.plugins.kimchi.i18n import messages
 from wok.plugins.kimchi.control import sub_nodes
 from wok.plugins.kimchi.model import model as kimchiModel
 from wok.plugins.kimchi.utils import upgrade_objectstore_data
+from wok.plugins.kimchi.utils import upgrade_objectstore_memory
 from wok.plugins.kimchi.utils import upgrade_objectstore_template_disks
 from wok.root import WokRoot
 from wok.utils import upgrade_objectstore_schema
@@ -73,6 +74,9 @@ class Kimchi(WokRoot):
             upgrade_objectstore_data('storagepool', '/storagepools',
                                      '/plugins/kimchi')
             upgrade_objectstore_template_disks(self.model.conn)
+
+        # Upgrade memory data, if necessary
+        upgrade_objectstore_memory()
 
     def get_custom_conf(self):
         return config.KimchiConfig()

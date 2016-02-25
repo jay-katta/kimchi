@@ -1,7 +1,7 @@
 #*
  * Project Kimchi
  *
- * Copyright IBM, Corp. 2013-2016
+ * Copyright IBM Corp, 2013-2016
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,9 @@
                                     <div class="template-edit-wrapper-label">
                                         <label for="template-edit-memory-textbox">$_("Memory (MB)")</label>
                                     </div>
+                                    <div class="template-edit-wrapper-label max-memory-field" style="display: none;">
+                                        <label for="template-edit-max-memory-textbox">$_("Max Memory (MB)")</label>
+                                    </div>
                                     <div class="template-edit-wrapper-label templ-edit-cdrom">
                                         <label for="template-edit-cdrom-textbox">$_("CDROM")</label>
                                     </div>
@@ -82,7 +85,11 @@
                                         <input id="template-edit-version-textbox" class="form-control"  name="os_version" type="text" disabled="disabled" />
                                     </div>
                                     <div class="template-edit-wrapper-controls">
-                                        <input id="template-edit-memory-textbox" class="form-control"  name="memory" type="text" />
+                                        <input id="template-edit-memory-textbox" class="form-control"  name="memory" type="number" step="1024" min="1024" style="width: 75%; display: inline;"/>
+                                        <button id="template-show-max-memory" class="btn btn-primary" type="button"><i class="fa fa-plus-circle"></i> <span class="text">$_("More")</span></button>
+                                    </div>
+                                    <div class="template-edit-wrapper-controls max-memory-field" style="display: none;">
+                                        <input id="template-edit-max-memory-textbox" class="form-control" name="max-memory" type="number" min="1024" step="1024" />
                                     </div>
                                     <div class="template-edit-wrapper-controls templ-edit-cdrom">
                                         <input id="template-edit-cdrom-textbox" class="form-control" name="cdrom" type="text" disabled="disabled" />
@@ -121,26 +128,31 @@
                         </div>
                         <div role="tabpanel" class="tab-pane" id="processor">
                             <form id="form-template-processor">
-                                <div class="form-inline">
-                                    <div class="form-group">
-                                        <label for="vcpus">$_("CPU Number"):</label>
-                                        <input type="text" class="form-control" value="1" id="vcpus" />
+                                <div class="form-group">
+                                    <div id="guest-processor">
+                                        <label for="vcpus">$_("CPU Number")</label>
+                                        <input id="vcpus" class="form-control" name="processor" type="number" min="1" />
+                                        <button id="guest-show-max-processor" class="btn btn-primary" type="button"><i class="fa fa-plus-circle"></i> <span class="text">$_("More")</span></button>
+                                    </div>
+                                    <div id="guest-max-processor-panel" class="form-group">
+                                        <label for="guest-edit-max-processor-textbox">$_("Max CPU")</label>
+                                        <input id="guest-edit-max-processor-textbox" class="form-control" name="max-processor" type="number" min="1" />
                                     </div>
                                 </div>
                                 <div class="manual form-group">
                                     <input type="checkbox" class="wok-checkbox" id="cpus-check" />
                                     <label for="cpus-check">$_("Manually set CPU topology")</label>
                                 </div>
-                                <div class="topology hide">
-                                    <div class="form-inline">
-                                        <div class="form-group">
-                                            <label for="cores">$_("Cores"):</label>
-                                            <input type="text" class="form-control" value="1" id="cores" />
-                                        </div>
-                                    </div>
+                                <div class="topology">
                                     <div class="form-group">
-                                        <label for="threads">$_("Threads"):</label>
-                                        <select id="threads" class="col-md-2"></select>
+                                        <label for="cores">$_("Cores")</label>
+                                        <input type="text" class="form-control" value="1" id="cores" />
+                                    </div>
+                                    <div>
+                                        <div class="form-group">
+                                            <label for="threads">$_("Threads")</label>
+                                            <select id="threads" class="selectpicker col-md-12 col-lg-12"></select>
+                                        </div>
                                     </div>
                                 </div>
                             </form>

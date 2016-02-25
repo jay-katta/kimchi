@@ -116,7 +116,10 @@ server.
           writes across all virtual disks (kb/s).
         * io_throughput_peak: The highest recent value of 'io_throughput'.
     * uuid: UUID of the VM.
-    * memory: The amount of memory assigned to the VM (in MB)
+    * memory: The memory parameters of the VM in the unit of MiB.
+        * current: The amount of memory that is assigned to the VM.
+        * maxmemory: The maximum total of memory that the VM can have. Amount
+          over current will be used exclusively for memory hotplug
     * cpu_info: CPU-specific information.
         * vcpus: The number of CPUs assigned to the VM
         * maxvcpus: The maximum number of CPUs that can be assigned to the VM
@@ -148,8 +151,10 @@ server.
     * name: New name for this VM (only applied for shutoff VM)
     * users: New list of system users.
     * groups: New list of system groups.
-    * memory: New amount of memory (MB) for this VM (if VM is running, new
-              value will take effect in next reboot)
+    * memory: New memory parameters of the VM in the unit of MiB.
+      Provide one or both.
+        * current: New amount of memory that will be assigned to the VM.
+        * maxmemory: New maximum total of memory that the VM can have.
     * graphics: A dict to show detail of VM graphics.
         * passwd *(optional)*: console password. When omitted a random password
                                willbe generated.
@@ -292,8 +297,11 @@ Represents a snapshot of the Virtual Machine's primary monitor.
     * name: The name of the Template.  Used to identify the Template in this API
     * os_distro *(optional)*: The operating system distribution
     * os_version *(optional)*: The version of the operating system distribution
-    * memory *(optional)*: The amount of memory assigned to the VM.
-      Default is 1024M.
+    * memory *(optional)*: The memory parameters of the template, specify one
+      or both. Default values are 1024MiB:
+        * current: The amount of memory that will be assigned to the VM.
+        * maxmemory: The maximum total of memory that the VM can have. Amount
+          over current will be used exclusively for memory hotplug
     * cdrom *(optional)*: A volume name or URI to an ISO image.
     * networks *(optional)*: list of networks will be assigned to the new VM.
       Default is '[default]'
@@ -396,7 +404,11 @@ A interface represents available network interface on VM.
     * icon: A URI to a PNG image representing this template
     * os_distro: The operating system distribution
     * os_version: The version of the operating system distribution
-    * memory: The amount of memory assigned to the VM in the unit of MB
+    * memory: The memory parameters of the template, that will be assigned to
+      the VM in the unit of MiB.
+        * current: The amount of memory that will be assigned to the VM.
+        * maxmemory: The maximum total of memory that the VM can have. Amount
+          over current will be used exclusively for memory hotplug
     * cdrom: A volume name or URI to an ISO image
     * storagepool: URI of the storagepool where template allocates vm storage.
     * networks *(optional)*: list of networks will be assigned to the new VM.
@@ -439,7 +451,10 @@ A interface represents available network interface on VM.
     * icon: A URI to a PNG image representing this template
     * os_distro: The operating system distribution
     * os_version: The version of the operating system distribution
-    * memory: The amount of memory assigned to the VM
+    * memory: The memory parameters of the template, specify one or both of:
+        * current: The amount of memory that will be assigned to the VM.
+        * maxmemory: The maximum total of memory that the VM can have. Amount
+          over current will be used exclusively for memory hotplug
     * cdrom: A volume name or URI to an ISO image
     * networks *(optional)*: list of networks will be assigned to the new VM.
     * disks: An array of requested disks with the following optional fields
@@ -907,6 +922,7 @@ List of available groups.
     * iommuGroup: IOMMU group number of a "pci" device. Would be None/null if
 	              host does not enable IOMMU support.
     * multifunction: True if the device belongs to a multi-function adapter.
+    * vga3d: True if the device is a 3D graphic card.
 
 
 ### Sub-collection: VMs with the device assigned.

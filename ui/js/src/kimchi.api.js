@@ -1,7 +1,7 @@
 /*
  * Project Kimchi
  *
- * Copyright IBM, Corp. 2013-2016
+ * Copyright IBM Corp, 2013-2016
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -700,6 +700,19 @@ var kimchi = {
 
     getStoragePoolVolume: function(poolName, volumeName, suc, err) {
         var url = 'plugins/kimchi/storagepools/' + encodeURIComponent(poolName) + '/storagevolumes/' + encodeURIComponent(volumeName);
+        wok.requestJSON({
+            url : url,
+            type : 'GET',
+            contentType : 'application/json',
+            timeout: 2000,
+            dataType : 'json',
+            success : suc,
+            error : err
+        });
+    },
+
+    getHostVgs: function(suc, err) {
+        var url = 'plugins/kimchi/host/vgs/';
         wok.requestJSON({
             url : url,
             type : 'GET',

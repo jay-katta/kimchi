@@ -1,7 +1,7 @@
 #
 # Project Kimchi
 #
-# Copyright IBM Corp, 2014-2016
+# Copyright IBM Corp, 2015-2016
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -100,7 +100,7 @@ messages = {
     "KCHVM0039E": _("Cannot resume VM '%(name)s' because it is not paused."),
     "KCHVM0040E": _("Unable to resume VM '%(name)s'. Details: %(err)s"),
     "KCHVM0041E": _("Memory assigned is higher then the maximum allowed in the host: %(maxmem)sMib."),
-    "KCHVM0042E": _("VM '%(name)s' does not support live memory update. Update the memory with the machine offline to enable this feature."),
+    "KCHVM0042E": _("Guest '%(name)s' does not support live memory update. Please, with the guest offline, set Maximum Memory with a value greater then Memory to enable this feature."),
     "KCHVM0043E": _("Only increase memory is allowed in active VMs"),
     "KCHVM0044E": _("For live memory update, new memory value must be equal old memory value plus multiples of 1024 Mib"),
     "KCHVM0045E": _("There are not enough free slots of 1024 Mib in the guest."),
@@ -127,12 +127,14 @@ messages = {
     "KCHVM0068E": _("Unable to setup password-less login at remote host %(host)s using user %(user)s. Error: %(error)s"),
     "KCHVM0069E": _("Password field must be a string."),
     "KCHVM0070E": _("Error creating local host ssh rsa key of user 'root'."),
-    "KCHVM0071E": _("Memory value %(mem)s must be aligned to %(alignment)sMiB."),
+    "KCHVM0071E": _("%(param)s value (%(mem)sMiB) must be aligned to %(alignment)sMiB."),
     "KCHVM0073E": _("Unable to update the following parameters while the VM is offline: %(params)s"),
     "KCHVM0074E": _("Unable to update the following parameters while the VM is online: %(params)s"),
-
     "KCHVM0076E": _("VM %(name)s must have serial and console defined to open a web serial console"),
     "KCHVM0077E": _("Impossible to get the serial console of %(name)s"),
+    "KCHVM0078E": _("Memory or Maximum Memory value is higher than amount supported by the host: %(memHost)sMiB."),
+    "KCHVM0079E": _("Memory or Maximum Memory value is higher than maximum amount recommended: 1TiB"),
+    "KCHVM0080E": _("Cannot update Maximum Memory when guest is running."),
 
     "KCHVMHDEV0001E": _("VM %(vmid)s does not contain directly assigned host device %(dev_name)s."),
     "KCHVMHDEV0002E": _("The host device %(dev_name)s is not allowed to directly assign to VM."),
@@ -142,6 +144,7 @@ messages = {
                         "For AMD CPU, add 'iommu=pt iommu=1'."),
     "KCHVMHDEV0004E": _('"name" should be a device name string'),
     "KCHVMHDEV0005E": _('The device %(name)s is probably in use by the host. Unable to attach it to the guest.'),
+    "KCHVMHDEV0006E": _('Hot-plug of device %(name)s is not supported.'),
 
     "KCHVMIF0001E": _("Interface %(iface)s does not exist in virtual machine %(name)s"),
     "KCHVMIF0002E": _("Network %(network)s specified for virtual machine %(name)s does not exist"),
@@ -165,7 +168,7 @@ messages = {
     "KCHTMPL0010E": _("Template distribution must be a string"),
     "KCHTMPL0011E": _("Template distribution version must be a string"),
     "KCHTMPL0012E": _("The number of CPUs must be an integer greater than 0"),
-    "KCHTMPL0013E": _("Amount of memory (MB) must be an integer greater than 512"),
+    "KCHTMPL0013E": _("Amount of memory and maximum memory (MB) must be an integer greater than 512"),
     "KCHTMPL0014E": _("Template CDROM must be a local or remote ISO file"),
     "KCHTMPL0015E": _("Invalid storage pool URI %(value)s specified for template"),
     "KCHTMPL0016E": _("Specify an ISO image as CDROM or a base image to create a template"),
@@ -181,6 +184,8 @@ messages = {
     "KCHTMPL0027E": _("Invalid disk image format. Valid formats: bochs, cloop, cow, dmg, qcow, qcow2, qed, raw, vmdk, vpc."),
     "KCHTMPL0028E": _("When setting template disks, following parameters are required: 'index', 'pool name', 'format', 'size' or 'volume' (for scsi/iscsi pools)"),
     "KCHTMPL0029E": _("Disk format must be 'raw', for logical, iscsi, and scsi pools."),
+    "KCHTMPL0030E": _("Memory expects an object with one or both parameters: 'current' and 'maxmemory'"),
+    "KCHTMPL0031E": _("Memory value (%(mem)sMiB) must be equal or lesser than maximum memory value (%(maxmem)sMiB)"),
 
     "KCHPOOL0001E": _("Storage pool %(name)s already exists"),
     "KCHPOOL0002E": _("Storage pool %(name)s does not exist"),

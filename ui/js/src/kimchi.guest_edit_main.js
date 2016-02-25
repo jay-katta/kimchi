@@ -1,7 +1,7 @@
 /*
  * Project Kimchi
  *
- * Copyright IBM, Corp. 2013-2016
+ * Copyright IBM Corp, 2013-2016
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -487,7 +487,7 @@ kimchi.guest_edit_main = function() {
             $('.body', '#form-guest-edit-pci').append(itemNode);
             pciEnabled || $('button', itemNode).remove();
             $('button i', itemNode).addClass(iconClass);
-            if (kimchi.thisVMState === "running" && arrPCIDevices[i].multifunction) {
+            if (kimchi.thisVMState === "running" && (arrPCIDevices[i].multifunction || arrPCIDevices[i].vga3d)) {
                 $('button', itemNode).prop("disabled", true);
             }
             $('button', itemNode).on('click', function(event) {
@@ -660,9 +660,14 @@ kimchi.guest_edit_main = function() {
     };
 
     var initContent = function(guest) {
-        guest['vcpus'] = guest['cpu_info']['vcpus']
+        guest['vcpus'] = guest.cpu_info['vcpus'];
+        guest['max-processor'] = guest.cpu_info['maxvcpus'];
         guest['icon'] = guest['icon'] || 'plugins/kimchi/images/icon-vm.png';
         $('#form-guest-edit-general').fillWithObject(guest);
+
+        $('#guest-edit-memory-textbox').val(parseInt(guest.memory.current));
+        $('#guest-edit-max-memory-textbox').val(parseInt(guest.memory.maxmemory));
+
         kimchi.thisVMState = guest['state'];
         refreshCDROMs();
         $('#guest-edit-attach-cdrom-button').on('click', function(event) {
@@ -672,6 +677,21 @@ kimchi.guest_edit_main = function() {
         if ((kimchi.thisVMState === "running") || (kimchi.thisVMState === "paused")) {
             $("#form-guest-edit-general input").not("#guest-edit-memory-textbox").prop("disabled", true);
         }
+        $('#guest-show-max-memory').on('click', function(e) {
+            e.preventDefault;
+            $('#guest-max-memory-panel').slideToggle();
+            var text = $('#guest-show-max-memory span.text').text();
+            $('#guest-show-max-memory span.text').text(text == i18n['KCHVMED6008M'] ? i18n['KCHVMED6009M'] : i18n['KCHVMED6008M']);
+            $('#guest-show-max-memory i.fa').toggleClass('fa-plus-circle fa-minus-circle');
+        });
+
+        $('#guest-show-max-processor').on('click', function(e) {
+            e.preventDefault;
+            $('#guest-max-processor-panel').slideToggle();
+            var cputext = $('#guest-show-max-processor span.cputext').text();
+            $('#guest-show-max-processor span.cputext').text(cputext == i18n['KCHVMED6008M'] ? i18n['KCHVMED6009M'] : i18n['KCHVMED6008M']);
+            $('#guest-show-max-processor i.fa').toggleClass('fa-plus-circle fa-minus-circle');
+        });
 
         var onAttached = function(params) {
             refreshCDROMs();
@@ -708,13 +728,33 @@ kimchi.guest_edit_main = function() {
         if (data['memory'] !== undefined) {
             data['memory'] = Number(data['memory']);
         }
+        if (data['max-memory'] !== undefined) {
+            data['max-memory'] = Number(data['max-memory']);
+        }
         if (data['vcpus'] !== undefined) {
-            data['cpu_info'] = {
-                vcpus: Number(data['vcpus'])
-            };
+            var cpu = Number(data['vcpus']);
+            var maxCpu = Number(data['max-processor']);
+            if (data['max-processor'] !== undefined && data['max-processor'] !== "") {
+                if (maxCpu >= cpu || maxCpu < cpu ) {  // if maxCpu < cpu, this will throw an error from backend
+                    data['cpu_info'] = {
+                        vcpus: cpu,
+                        maxvcpus: maxCpu
+                    };
+                }
+            } else {
+                data['cpu_info'] = {
+                    vcpus: cpu,
+                    maxvcpus: cpu
+                };
+            }
             delete data['vcpus'];
+            delete data['max-processor'];
         }
 
+        memory = {'current': data['memory'], 'maxmemory': data['max-memory']};
+
+        data.memory = memory;
+        delete data['max-memory'];
         kimchi.updateVM(kimchi.selectedGuest, data, function() {
             kimchi.listVmsAuto();
             wok.window.close();

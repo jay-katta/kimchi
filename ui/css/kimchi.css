@@ -1,7 +1,7 @@
 /*
  * Project Kimchi
  *
- * Copyright IBM, Corp. 2015
+ * Copyright IBM Corp, 2015-2016
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -666,8 +666,23 @@
   position: relative;
 }
 
-#guest-edit-window #form-guest-edit-general #guest-edit-memory-textbox {
+#guest-edit-window #form-guest-edit-general #guest-max-memory-panel,
+#guest-edit-window #form-guest-edit-general #guest-max-processor-panel {
+  display: none;
+}
+
+#guest-edit-window #form-guest-edit-general #guest-edit-memory-textbox,
+#guest-edit-window #form-guest-edit-general #guest-edit-max-memory-textbox,
+#guest-edit-window #form-guest-edit-general #guest-edit-cores-textbox,
+#guest-edit-window #form-guest-edit-general #guest-edit-max-processor-textbox {
   width: 590px;
+}
+
+#guest-edit-window #form-guest-edit-general #guest-edit-memory-textbox,
+#guest-edit-window #form-guest-edit-general #guest-show-max-memory,
+#guest-edit-window #form-guest-edit-general #guest-edit-cores-textbox,
+#guest-edit-window #form-guest-edit-general #guest-show-max-processor {
+  display: inline-block;
 }
 
 #guest-edit-window #form-guest-edit-interface .column-actions {
@@ -1178,17 +1193,44 @@
   height: 40px;
 }
 
+#template-edit-window #guest-max-processor-panel {
+  display: none;
+}
+
+#template-edit-window #guest-show-max-processor {
+  display: inline-block;
+}
+
+#template-edit-window #guest-processor label {
+  display: block;
+}
+
+#template-edit-window #guest-max-processor-panel label {
+  display: block;
+}
+
+#template-edit-window #guest-max-processor-panel .form-control,
+#template-edit-window #guest-processor .form-control {
+  display: inline-block;
+  width: 184px;
+}
+
 #template-edit-window .manual {
   margin-top: 5px;
   margin-bottom: 10px;
 }
 
 #template-edit-window .topology {
+  display: none;
   margin: 0 24px;
 }
 
-#template-edit-window .topology .form-inline {
-  margin-bottom: 10px;
+#template-edit-window .topology label {
+  display: block;
+}
+
+#template-edit-window .bootstrap-select .btrn .caret {
+  height: selectpicker height-2px;
 }
 
 #template-edit-window .template-storage-cell.storage-pool {
